@@ -1,0 +1,577 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  ShoppingBag, 
+  MessageSquare, 
+  Droplet, 
+  Sparkles, 
+  Calendar, 
+  CheckCircle2, 
+  ChevronRight, 
+  ChevronLeft,
+  Phone,
+  MapPin,
+  User,
+  Hash,
+  Info,
+  Minus,
+  Plus
+} from 'lucide-react';
+import { cn } from './lib/utils';
+
+const COLORS = {
+  primary: '#5A5A40', // Olive
+  secondary: '#f5f5f0', // Cream
+  accent: '#E4D5B7', // Gold/Sand
+  ink: '#141414',
+};
+
+const INGREDIENTS = [
+  { name: 'Coconuts', icon: '🥥', desc: 'Deep nourishment & hydration' },
+  { name: 'Almonds', icon: '🥜', desc: 'Vitamin E for shine and strength' },
+  { name: 'Rosemary Leaves', icon: '🌿', desc: 'Stimulates follicles & growth' },
+  { name: 'Fenugreek Seeds', icon: '🌱', desc: 'Controls hair fall & dandruff' },
+];
+
+const USE_STEPS = [
+  { title: 'Apply', content: 'Apply oil based on your hair length.', icon: <Droplet className="w-5 h-5" /> },
+  { title: 'Massage', content: 'Massage gently into your scalp.', icon: <Sparkles className="w-5 h-5" /> },
+  { title: 'Wait', content: 'Leave for 2 hours or preferably overnight.', icon: <Calendar className="w-5 h-5" /> },
+  { title: 'Rinse', content: 'Rinse off with normal luke warm water.', icon: <CheckCircle2 className="w-5 h-5" /> },
+];
+
+const WHATSAPP_NUMBER = '8978992637';
+const PRICE_PER_BOTTLE = 333;
+
+export default function App() {
+  const [orderStep, setOrderStep] = useState<number>(0);
+  const [couponInput, setCouponInput] = useState('');
+  const [isDiscountApplied, setIsDiscountApplied] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
+  
+  const heroImages = [
+    '/input_file_0.png',
+    '/input_file_1.png'
+  ];
+
+  const [orderData, setOrderData] = useState({
+    quantity: 1,
+    name: '',
+    phone: '',
+    address: '',
+    pincode: '',
+  });
+
+  // Auto-scroll hero images
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveImage(prev => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [heroImages.length]);
+
+  const discountAmount = useMemo(() => {
+    if (!isDiscountApplied) return 0;
+    return Math.floor(orderData.quantity * PRICE_PER_BOTTLE * 0.1);
+  }, [orderData.quantity, isDiscountApplied]);
+
+  const totalAmount = useMemo(() => {
+    const base = orderData.quantity * PRICE_PER_BOTTLE;
+    return base - discountAmount;
+  }, [orderData.quantity, discountAmount]);
+
+  const applyCoupon = () => {
+    if (couponInput.toUpperCase() === 'GEETHA11') {
+      setIsDiscountApplied(true);
+    }
+  };
+
+  const handleOrder = () => {
+    const message = `Hi VASAA! I'd like to order:
+📦 Quantity: ${orderData.quantity} Bottle(s)
+💰 Total: ₹${totalAmount} ${isDiscountApplied ? `(Coupon GEETHA11 applied - 10% off: ₹${discountAmount} saved!)` : ''} + Shipping
+👤 Name: ${orderData.name}
+📞 Contact: ${orderData.phone}
+📍 Address: ${orderData.address}
+🔢 Pincode: ${orderData.pincode}
+
+Please confirm my order. Thanks!`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+    setOrderStep(4); // Show "Order Placed" state
+  };
+
+  const nextStep = () => setOrderStep(prev => prev + 1);
+  const prevStep = () => setOrderStep(prev => prev - 1);
+
+  return (
+    <div className="min-h-screen selection:bg-[#5A5A40] selection:text-white">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-[#f5f5f0]/80 backdrop-blur-md border-b border-[#5A5A40]/10 px-6 py-4 flex justify-between items-center">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-[#5A5A40]">VASAA</h1>
+        <button 
+          onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
+          className="bg-[#5A5A40] text-white px-6 py-2 rounded-full text-sm font-medium hover:scale-105 transition-transform active:scale-95"
+        >
+          Order Now
+        </button>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
+        <div className="flex-1 space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span className="font-serif italic font-bold text-lg text-[#151417]/80 mb-4 block">Organic, Pure & Homemade</span>
+            <h2 className="font-display text-6xl md:text-8xl font-bold leading-[0.9] tracking-tighter mb-6">
+              Vasaa Hair Care Oil
+            </h2>
+            <p className="text-xl text-[#141414]/70 max-w-lg leading-relaxed">
+              Crafted with nature's finest ingredients to give your hair the thickness and strength it deserves. Thicker, stronger, longer hair is just a massage away.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            viewport={{ once: true }}
+            className="flex flex-wrap gap-4"
+          >
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-[#5A5A40]/10 text-sm font-medium">
+              <CheckCircle2 className="w-4 h-4 text-[#5A5A40]" /> For All Hair Types
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-[#5A5A40]/10 text-sm font-medium">
+              <Droplet className="w-4 h-4 text-[#5A5A40]" /> 100% Pure
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="flex-1 relative w-full"
+        >
+          {/* Main Product Slider Container */}
+          <div className="relative aspect-[4/5] bg-[#E4D5B7] rounded-[40px] flex items-center justify-center p-4 md:p-8 group">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={activeImage}
+                src={heroImages[activeImage]}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105 duration-700"
+                referrerPolicy="no-referrer"
+              />
+            </AnimatePresence>
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-[#141414]/20 to-transparent pointer-events-none" />
+
+            {/* Slider Dots */}
+            <div className="absolute bottom-8 flex gap-2 z-10">
+              {heroImages.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImage(idx)}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all",
+                    idx === activeImage ? "bg-[#5A5A40] w-8" : "bg-white/50"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Floating Element */}
+          <motion.div 
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl border border-[#5A5A40]/10"
+          >
+            <p className="font-display text-3xl font-bold text-[#5A5A40]">₹333</p>
+            <p className="text-xs text-[#141414]/50 uppercase tracking-wider font-bold">Per 200ml Bottle</p>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Ingredients */}
+      <section className="bg-white py-24 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="font-display text-4xl font-bold mb-4">Nature's Essence</h3>
+            <p className="text-[#141414]/60 font-serif italic font-bold text-lg">Pure ingredients, real results.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {INGREDIENTS.map((item, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                viewport={{ once: true }}
+                className="group p-8 rounded-3xl bg-[#f5f5f0] border border-transparent hover:border-[#5A5A40]/20 hover:bg-[#E4D5B7]/20 transition-all cursor-default"
+              >
+                <div className="text-4xl mb-6 group-hover:scale-110 transition-transform inline-block">{item.icon}</div>
+                <h4 className="font-display text-2xl font-bold mb-2">{item.name}</h4>
+                <p className="text-sm text-[#141414]/60 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How to Use */}
+      <section className="py-24 px-6 bg-[#f5f5f0]">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+          <div className="flex-1 text-center lg:text-left">
+            <h3 className="font-display text-4xl md:text-5xl font-bold mb-6">How to Use</h3>
+            <p className="text-[#141414]/60 text-lg mb-8 max-w-md">For best results, follow our simple four-step ritual. Consistency is key to healthy hair.</p>
+            <div className="inline-flex items-center gap-2 bg-[#5A5A40]/10 text-[#5A5A40] px-4 py-2 rounded-lg text-sm font-semibold">
+              <Info className="w-4 h-4" />
+              Rinse with Luke Warm Water
+            </div>
+          </div>
+
+          <div className="flex-1 w-full space-y-4">
+            {USE_STEPS.map((step, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                viewport={{ once: true }}
+                className="flex items-center gap-6 p-6 bg-white rounded-2xl shadow-sm border border-[#5A5A40]/5"
+              >
+                <div className="w-12 h-12 bg-[#5A5A40] text-white rounded-xl flex items-center justify-center shrink-0">
+                  {step.icon}
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#141414] text-lg">{step.title}</h4>
+                  <p className="text-[#141414]/60 text-sm">{step.content}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Order Section / Questionnaire */}
+      <section id="order" className="py-24 px-6 max-w-4xl mx-auto">
+        <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-[#5A5A40]/10">
+          <div className="bg-[#5A5A40] p-10 text-white text-center">
+            <h3 className="font-display text-4xl font-bold mb-2">Place Your Order</h3>
+            <p className="text-white/70 italic font-serif">Quick checkout via WhatsApp</p>
+          </div>
+
+          <div className="p-8 md:p-12">
+            <AnimatePresence mode="wait">
+              {orderStep === 0 && (
+                <motion.div 
+                  key="step0"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <div className="text-center">
+                    <label className="text-sm font-bold uppercase tracking-widest text-[#141414]/40 block mb-4">How many bottles required?</label>
+                    <div className="flex items-center justify-center gap-8">
+                      <button 
+                        onClick={() => setOrderData(d => ({ ...d, quantity: Math.max(1, d.quantity - 1) }))}
+                        className="w-12 h-12 rounded-full border-2 border-[#5A5A40] flex items-center justify-center text-[#5A5A40] hover:bg-[#5A5A40] hover:text-white transition-colors"
+                      >
+                        <Minus className="w-6 h-6" />
+                      </button>
+                      <span className="text-6xl font-display font-bold text-[#5A5A40]">{orderData.quantity}</span>
+                      <button 
+                        onClick={() => setOrderData(d => ({ ...d, quantity: d.quantity + 1 }))}
+                        className="w-12 h-12 rounded-full border-2 border-[#5A5A40] flex items-center justify-center text-[#5A5A40] hover:bg-[#5A5A40] hover:text-white transition-colors"
+                      >
+                        <Plus className="w-6 h-6" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#f5f5f0] p-6 rounded-2xl flex justify-between items-center">
+                    <div>
+                      <p className="text-xs font-bold text-[#141414]/40 uppercase">Subtotal</p>
+                      <p className="text-2xl font-bold">₹{totalAmount}</p>
+                    </div>
+                    <button 
+                      onClick={nextStep}
+                      className="bg-[#5A5A40] text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:shadow-lg transition-all"
+                    >
+                      Next Step <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {orderStep === 1 && (
+                <motion.div 
+                  key="step1"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase text-black flex items-center gap-2">
+                        <User className="w-3 h-3" /> Full Name
+                      </label>
+                      <input 
+                        type="text"
+                        value={orderData.name}
+                        onChange={e => setOrderData(d => ({ ...d, name: e.target.value }))}
+                        placeholder="Your Name"
+                        className="w-full px-4 py-3 rounded-xl border border-[#5A5A40]/20 focus:ring-2 focus:ring-[#5A5A40]/20 focus:outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase text-black flex items-center gap-2">
+                        <Phone className="w-3 h-3" /> Contact Number
+                      </label>
+                      <input 
+                        type="tel"
+                        value={orderData.phone}
+                        onChange={e => setOrderData(d => ({ ...d, phone: e.target.value }))}
+                        placeholder="Mobile No."
+                        className="w-full px-4 py-3 rounded-xl border border-[#5A5A40]/20 focus:ring-2 focus:ring-[#5A5A40]/20 focus:outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-black flex items-center gap-2">
+                      <MapPin className="w-3 h-3" /> Shipping Address
+                    </label>
+                    <textarea 
+                      value={orderData.address}
+                      onChange={e => setOrderData(d => ({ ...d, address: e.target.value }))}
+                      placeholder="Full Address"
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border border-[#5A5A40]/20 focus:ring-2 focus:ring-[#5A5A40]/20 focus:outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-black flex items-center gap-2">
+                      <Hash className="w-3 h-3" /> Pincode
+                    </label>
+                    <input 
+                      type="text"
+                      value={orderData.pincode}
+                      onChange={e => setOrderData(d => ({ ...d, pincode: e.target.value }))}
+                      placeholder="6 Digit PIN"
+                      className="w-full px-4 py-3 rounded-xl border border-[#5A5A40]/20 focus:ring-2 focus:ring-[#5A5A40]/20 focus:outline-none transition-all"
+                    />
+                  </div>
+                  
+                  <div className="flex gap-4 pt-4">
+                    <button 
+                      onClick={prevStep}
+                      className="flex-1 py-4 border-2 border-[#5A5A40]/20 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#5A5A40]/5 transition-all text-[#5A5A40]"
+                    >
+                      <ChevronLeft className="w-5 h-5" /> Back
+                    </button>
+                    <button 
+                      onClick={nextStep}
+                      disabled={!orderData.name || !orderData.phone || !orderData.address || !orderData.pincode}
+                      className="flex-[2] bg-[#5A5A40] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-50 disabled:grayscale"
+                    >
+                      Review Order <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {orderStep === 2 && (
+                <motion.div 
+                  key="stepCoupon"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="text-center space-y-2">
+                    <label className="text-sm font-bold uppercase tracking-widest text-black block">Have a coupon code?</label>
+                    <p className="text-xs text-black italic font-serif">Enter your code for special discounts</p>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <input 
+                      type="text"
+                      value={couponInput}
+                      onChange={e => setCouponInput(e.target.value)}
+                      placeholder="Enter Coupon Code"
+                      className="flex-1 px-4 py-3 rounded-xl border border-[#5A5A40]/20 focus:ring-2 focus:ring-[#5A5A40]/20 focus:outline-none transition-all font-mono tracking-widest uppercase"
+                    />
+                    <button 
+                      onClick={applyCoupon}
+                      className="bg-[#5A5A40] text-white px-6 rounded-xl font-bold text-sm tracking-tight hover:shadow-lg transition-all"
+                    >
+                      Apply
+                    </button>
+                  </div>
+
+                  {isDiscountApplied && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 text-green-700"
+                    >
+                      <Sparkles className="w-5 h-5 shrink-0" />
+                      <p className="text-sm font-bold">Successfully applied! 10% off on your order.</p>
+                    </motion.div>
+                  )}
+
+                  <div className="flex gap-4 pt-4">
+                    <button 
+                      onClick={prevStep}
+                      className="flex-1 py-4 border-2 border-[#5A5A40]/20 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#5A5A40]/5 transition-all text-[#5A5A40]"
+                    >
+                      <ChevronLeft className="w-5 h-5" /> Back
+                    </button>
+                    <button 
+                      onClick={nextStep}
+                      className="flex-[2] bg-[#5A5A40] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all"
+                    >
+                      Review Order <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {orderStep === 3 && (
+                <motion.div 
+                  key="stepReview"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="space-y-6"
+                >
+                  <div className="flex flex-col md:flex-row gap-6 bg-[#f5f5f0] p-6 rounded-3xl">
+                    <div className="w-full md:w-32 h-32 rounded-2xl overflow-hidden shadow-md shrink-0">
+                      <img 
+                        src={heroImages[0]} 
+                        className="w-full h-full object-cover" 
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-4">
+                      <div className="flex justify-between border-b border-black/5 pb-2 text-sm lg:text-base">
+                        <span className="text-[#141414]/50">Product</span>
+                        <span className="font-bold">Vasaa Hair Oil ({orderData.quantity}x)</span>
+                      </div>
+                      {isDiscountApplied && (
+                        <div className="flex justify-between border-b border-black/5 pb-2 text-sm lg:text-base">
+                          <span className="text-green-600 font-medium">Coupon GEETHA11 applied (10% off)</span>
+                          <span className="text-green-600 font-bold">-₹{discountAmount}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between border-b border-black/5 pb-2 text-sm lg:text-base">
+                        <span className="text-[#141414]/50">Total Amount</span>
+                        <span className="font-bold text-xl text-[#5A5A40]">₹{totalAmount}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-4 rounded-xl flex gap-3 text-sm text-blue-700">
+                    <Info className="w-5 h-5 shrink-0" />
+                    <p>Shipping charges will be applicable. Pay via PhonePe to <b>{WHATSAPP_NUMBER}</b> after confirming on WhatsApp.</p>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={prevStep}
+                      className="flex-1 py-4 border-2 border-[#5A5A40]/20 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#5A5A40]/5 transition-all text-[#5A5A40]"
+                    >
+                      <ChevronLeft className="w-5 h-5" /> Back
+                    </button>
+                    <button 
+                      onClick={handleOrder}
+                      className="flex-[2] bg-[#25D366] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all"
+                    >
+                      <MessageSquare className="w-5 h-5" /> Chat to Confirm
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {orderStep === 4 && (
+                <motion.div 
+                  key="step3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center py-8 space-y-6"
+                >
+                  <div className="w-20 h-20 bg-[#25D366]/20 text-[#25D366] rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-10 h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-3xl font-display font-bold">Redirecting to WhatsApp...</h4>
+                    <p className="text-[#141414]/60">Thanks for confirming! Your order is being placed. You will get shipping details soon.</p>
+                  </div>
+              <div className="p-6 bg-yellow-50 rounded-2xl border border-yellow-200">
+                <p className="text-sm font-bold text-yellow-800 uppercase mb-2">Payment Details</p>
+                <p className="text-lg font-bold text-yellow-900">PhonePe: {WHATSAPP_NUMBER}</p>
+                <p className="text-xs text-yellow-700 mt-2 italic font-medium tracking-tight whitespace-pre-line">
+                  📦 Shipping charges applicable based on your location.
+                  ✅ Pay via this PhonePe number after we confirm your order!
+                </p>
+              </div>
+                  <button 
+                    onClick={() => setOrderStep(0)}
+                    className="text-[#5A5A40] font-bold underline underline-offset-4"
+                  >
+                    Start new order
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-[#141414] text-white py-20 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div>
+            <h2 className="font-display text-4xl font-bold mb-4">VASAA</h2>
+            <p className="text-[#fef9c3]/70 max-w-xs leading-relaxed font-medium">
+              Homemade with love. Pure ingredients for the crowning glory you deserve.
+            </p>
+          </div>
+          
+          <div className="flex gap-12">
+            <div className="space-y-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#fef9c3]/80 text-center md:text-left">Contact Us</p>
+              <a href={`tel:${WHATSAPP_NUMBER}`} className="flex items-center gap-3 hover:text-[#5A5A40] transition-colors justify-center md:justify-start">
+                <Phone className="w-4 h-4" /> {WHATSAPP_NUMBER}
+              </a>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} className="flex items-center gap-3 hover:text-[#25D366] transition-colors justify-center md:justify-start">
+                <MessageSquare className="w-4 h-4" /> WhatsApp Support
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto border-t border-white/10 mt-16 pt-8 text-center text-[#fef9c3]/60 text-xs">
+          © {new Date().getFullYear()} VASAA Hair Care. All Rights Reserved.
+        </div>
+      </footer>
+    </div>
+  );
+}
+
