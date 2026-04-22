@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VASAA Hair Care Oil</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Inter&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #f5f5dc;
+  color: #333;
+}
+h1,h2,h3 {
+  font-family: 'Playfair Display', serif;
+}
+.container {
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+}
+.hero img {
+  width: 100%;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+.hero img:hover {
+  transform: scale(1.05);
+}
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #fef9c3;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+.dots {
+  text-align: center;
+  margin-top: 10px;
+}
+.dot {
+  height: 10px;
+  width: 10px;
+  margin: 3px;
+  background: gray;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+.active {
+  background: black;
+}
+.box {
+  background: white;
+  padding: 12px;
+  margin: 5px;
+  border-radius: 10px;
+  text-align: center;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #5A5A40;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+}
+.qty {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  align-items: center;
+}
+.footer {
+  background: black;
+  color: #fef9c3;
+  text-align: center;
+  padding: 15px;
+  margin-top: 20px;
+}
+.bluebox {
+  background: #dbeafe;
+  padding: 10px;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>VASAA Hair Care Oil</h1>
+<p><b><i>Organic, Pure & Homemade</i></b></p>
+
+<div class="hero" style="position:relative;">
+  <img id="slider" src="image1.png">
+  <div class="badge">₹333</div>
+</div>
+
+<div class="dots">
+  <span class="dot active" onclick="setSlide(0)"></span>
+  <span class="dot" onclick="setSlide(1)"></span>
+</div>
+
+<h2>Ingredients</h2>
+<p><b><i>Pure ingredients, real results.</i></b></p>
+
+<div class="grid">
+  <div class="box">Coconut</div>
+  <div class="box">Almond</div>
+  <div class="box">Rosemary</div>
+  <div class="box">Fenugreek</div>
+</div>
+
+<h2>How to Use</h2>
+<ul>
+  <li>Apply oil based on hair length</li>
+  <li>Massage gently</li>
+  <li>Leave for 2 hours or overnight</li>
+  <li>Wash with lukewarm water</li>
+</ul>
+
+<div id="step1">
+<h3>Select Quantity</h3>
+<div class="qty">
+<button onclick="changeQty(-1)">-</button>
+<span id="qty">1</span>
+<button onclick="changeQty(1)">+</button>
+</div>
+<p>Subtotal: ₹<span id="subtotal">333</span></p>
+<button onclick="nextStep(2)">Next</button>
+</div>
+
+<div id="step2" style="display:none;">
+<h3>Your Details</h3>
+<label style="color:black;">Name</label>
+<input id="name">
+<label style="color:black;">Phone</label>
+<input id="phone">
+<label style="color:black;">Address</label>
+<input id="address">
+<label style="color:black;">Pincode</label>
+<input id="pincode">
+<button onclick="nextStep(3)">Next</button>
+</div>
+
+<div id="step3" style="display:none;">
+<h3 style="color:black;">Have a coupon code?</h3>
+<input id="coupon">
+<button onclick="applyCoupon()">Apply & Next</button>
+</div>
+
+<div id="step4" style="display:none;">
+<h3>Review Order</h3>
+<p>Qty: <span id="rqty"></span></p>
+<p>Discount: <span id="rdisc"></span>%</p>
+<p>Total: ₹<span id="rtotal"></span></p>
+
+<div class="bluebox">
+Shipping charges applicable. Pay via PhonePe to 8978992637.
+</div>
+
+<button onclick="sendWhatsApp()">Chat to Confirm</button>
+</div>
+
+</div>
+
+<div class="footer">
+© VASAA Hair Care Oil
+</div>
+
+<script>
+let images = ["image1.png","image2.png"];
+let index = 0;
+
+setInterval(()=>{
+  index = (index+1)%images.length;
+  document.getElementById("slider").src = images[index];
+  updateDots();
+},3000);
+
+function setSlide(i){
+  index = i;
+  document.getElementById("slider").src = images[index];
+  updateDots();
+}
+
+function updateDots(){
+  document.querySelectorAll(".dot").forEach((d,i)=>{
+    d.classList.toggle("active",i===index);
+  });
+}
+
+let qty = 1;
+let price = 333;
+let discount = 0;
+
+function changeQty(val){
+  qty = Math.max(1, qty+val);
+  document.getElementById("qty").innerText = qty;
+  document.getElementById("subtotal").innerText = qty*price;
+}
+
+function nextStep(step){
+  document.querySelectorAll("[id^='step']").forEach(s=>s.style.display="none");
+  document.getElementById("step"+step).style.display="block";
+
+  if(step==4){
+    let total = qty*price*(1-discount);
+    document.getElementById("rqty").innerText = qty;
+    document.getElementById("rdisc").innerText = discount*100;
+    document.getElementById("rtotal").innerText = total;
+  }
+}
+
+function applyCoupon(){
+  let c = document.getElementById("coupon").value;
+  if(c==="GEETHA11"){
+    discount=0.1;
+    alert("Coupon Applied!");
+  }
+  nextStep(4);
+}
+
+function sendWhatsApp(){
+  let total = qty*price*(1-discount);
+
+  let msg = `VASAA Hair Care Oil Order
+Qty: ${qty}
+Total: ₹${total}
+
+Name: ${document.getElementById("name").value}
+Phone: ${document.getElementById("phone").value}
+Address: ${document.getElementById("address").value}, ${document.getElementById("pincode").value}`;
+
+  window.location.href = `https://wa.me/918978992637?text=${encodeURIComponent(msg)}`;
+}
+</script>
+
+</body>
+</html>
